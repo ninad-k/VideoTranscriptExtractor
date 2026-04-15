@@ -290,32 +290,33 @@ pub fn run() {
                 processor: ProcessorState::default(),
             });
 
-            let file_add = MenuItem::with_id(app, "file_add_videos", "Add videos…", true, None)
+            let file_add = MenuItem::with_id(app, "file_add_videos", "Add videos…", true, None::<&str>)
                 .map_err(|e| e.to_string())?;
-            let file_start = MenuItem::with_id(app, "file_start_queue", "Start queue", true, None)
+            let file_start = MenuItem::with_id(app, "file_start_queue", "Start queue", true, None::<&str>)
                 .map_err(|e| e.to_string())?;
-            let file_cancel = MenuItem::with_id(app, "file_cancel_queue", "Cancel", true, None)
+            let file_cancel = MenuItem::with_id(app, "file_cancel_queue", "Cancel", true, None::<&str>)
                 .map_err(|e| e.to_string())?;
-            let file_quit = PredefinedMenuItem::quit(app, None).map_err(|e| e.to_string())?;
+            let file_quit =
+                PredefinedMenuItem::quit(app, None::<&str>).map_err(|e| e.to_string())?;
             let file_sep = PredefinedMenuItem::separator(app).map_err(|e| e.to_string())?;
 
             let view_toggle_help =
-                MenuItem::with_id(app, "view_toggle_help", "Toggle Help", true, None)
+                MenuItem::with_id(app, "view_toggle_help", "Toggle Help", true, None::<&str>)
                     .map_err(|e| e.to_string())?;
 
             let edit_copy_transcript =
-                MenuItem::with_id(app, "edit_copy_transcript", "Copy transcript", true, None)
+                MenuItem::with_id(app, "edit_copy_transcript", "Copy transcript", true, None::<&str>)
                     .map_err(|e| e.to_string())?;
 
-            let export_srt = MenuItem::with_id(app, "export_srt", "Export SRT…", true, None)
+            let export_srt = MenuItem::with_id(app, "export_srt", "Export SRT…", true, None::<&str>)
                 .map_err(|e| e.to_string())?;
-            let export_vtt = MenuItem::with_id(app, "export_vtt", "Export WebVTT…", true, None)
+            let export_vtt = MenuItem::with_id(app, "export_vtt", "Export WebVTT…", true, None::<&str>)
                 .map_err(|e| e.to_string())?;
-            let export_txt = MenuItem::with_id(app, "export_txt", "Export TXT…", true, None)
+            let export_txt = MenuItem::with_id(app, "export_txt", "Export TXT…", true, None::<&str>)
                 .map_err(|e| e.to_string())?;
 
             let help_item =
-                MenuItem::with_id(app, "help_user_guide", "Help", true, None).map_err(|e| e.to_string())?;
+                MenuItem::with_id(app, "help_user_guide", "Help", true, None::<&str>).map_err(|e| e.to_string())?;
 
             let file_submenu = Submenu::with_items(
                 app,
