@@ -85,18 +85,10 @@ npm install
 npm run tauri build
 ```
 
-## CI: build installers for all OS
+## CI: Windows installer (tag releases)
 
-This repo includes a GitHub Actions workflow that:
-
-- builds on **Windows**, **macOS**, and **Linux**
-- downloads and bundles **FFmpeg**, **transcriber**, and **prebundled models**
-- uploads the resulting installers as workflow artifacts
-- publishes a GitHub Release when you push a tag like `v0.1.0`
-
-Workflow file:
-
-- [`.github/workflows/build-installers.yml`](.github/workflows/build-installers.yml)
+- **Main branch** runs a lightweight workflow (unit tests, Vite build, `cargo check`) and does **not** produce installers: [`.github/workflows/build-main.yml`](.github/workflows/build-main.yml).
+- **Version tags** (`v*`, e.g. `v0.1.0`) trigger the Windows installer build, which downloads and bundles **FFmpeg**, **transcriber**, and **prebundled models**, uploads artifacts, and publishes a GitHub Release: [`.github/workflows/build-installers.yml`](.github/workflows/build-installers.yml).
 
 ## Licensing / compliance notes
 

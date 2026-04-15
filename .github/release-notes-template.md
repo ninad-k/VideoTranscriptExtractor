@@ -2,9 +2,7 @@
 - 
 
 ## Downloads
-- **Windows**: see assets under `dist/windows`
-- **macOS**: see assets under `dist/macos`
-- **Linux**: see assets under `dist/linux`
+- **Windows**: MSI and NSIS installer assets under `dist/windows`
 
 ## Notes
 - This release bundles **FFmpeg**, the **transcriber sidecar**, and **prebundled models** for fully offline first-run.

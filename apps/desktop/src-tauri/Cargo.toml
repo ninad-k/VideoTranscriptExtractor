@@ -27,3 +27,6 @@ which = "6"
 [[bin]]
 name = "video_transcript_extractor"
 path = "src/main.rs"
+
+[package.metadata.tauri]
+config = "tauri.conf.json"
