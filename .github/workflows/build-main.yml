@@ -107,7 +107,7 @@ jobs:
 
       - name: Install frontend deps
         working-directory: apps/desktop
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: Build Tauri bundle
         working-directory: apps/desktop
