@@ -1,5 +1,6 @@
 /target
 **/target/
+apps/desktop/src-tauri/target/
 **/node_modules/
 **/dist/
 **/.venv/
