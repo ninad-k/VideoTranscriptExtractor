@@ -6,6 +6,9 @@ on:
     tags:
       - "v*"
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 permissions:
   contents: write
 
@@ -29,10 +32,15 @@ jobs:
           echo "HUGGINGFACE_HUB_CACHE=${{ github.workspace }}/.cache/huggingface/hub" >> $GITHUB_ENV
           echo "CTRANSLATE2_CACHE=${{ github.workspace }}/.cache/ctranslate2" >> $GITHUB_ENV
 
+      - name: Ensure cache dirs exist
+        shell: bash
+        run: |
+          mkdir -p .cache/huggingface .cache/ctranslate2
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: "npm"
           cache-dependency-path: apps/desktop/package-lock.json
 
