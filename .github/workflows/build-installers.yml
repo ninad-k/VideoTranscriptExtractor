@@ -122,7 +122,11 @@ jobs:
 
       - name: Build Tauri bundle
         working-directory: apps/desktop
-        run: npm run tauri build
+        env:
+          RUST_BACKTRACE: "1"
+          RUST_LOG: "tauri_bundler=debug,tauri_cli=debug"
+          TAURI_BUNDLER_DEBUG: "true"
+        run: npm run tauri -- build --verbose
 
       - name: Upload Windows artifacts
         if: runner.os == 'Windows'
