@@ -87,7 +87,7 @@ npm run tauri build
 
 ## CI: Windows installer (tag releases)
 
-- **Main branch** runs a lightweight workflow (unit tests, Vite build, `cargo check`) and does **not** produce installers: [`.github/workflows/build-main.yml`](.github/workflows/build-main.yml).
+- **Main branch** runs a lightweight workflow (unit tests, Vite build, `cargo check`) and does **not** produce installers: [`.github/workflows/build-main.yml`](.github/workflows/build-main.yml). On Linux, install the same system packages as CI before `cargo check` / `tauri build`: `bash scripts/install-linux-tauri-deps.sh`.
 - **Version tags** (`v*`, e.g. `v0.1.0`) trigger the Windows installer build, which downloads and bundles **FFmpeg**, **transcriber**, and **prebundled models**, uploads artifacts, and publishes a GitHub Release: [`.github/workflows/build-installers.yml`](.github/workflows/build-installers.yml).
 
 ## Licensing / compliance notes

@@ -30,6 +30,9 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Install Linux dependencies (Tauri / GTK / WebKit)
+        run: bash scripts/install-linux-tauri-deps.sh
+
       - name: Install frontend deps
         working-directory: apps/desktop
         run: npm install --no-audit --no-fund
