@@ -31,8 +31,8 @@
       "icons/128x128@2x.png"
     ],
     "resources": [
-      "bin/**",
-      "models/**"
+      "bin/**/*",
+      "models/**/*"
     ]
   },
   "plugins": {}
