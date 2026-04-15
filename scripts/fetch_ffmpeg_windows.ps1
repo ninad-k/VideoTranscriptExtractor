@@ -5,7 +5,7 @@ $ErrorActionPreference = "Stop"
 #
 # Source: BtbN FFmpeg-Builds (GPL/LGPL depends on artifact). Verify license before redistribution.
 
-$root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+$root = Split-Path -Parent $PSScriptRoot
 $outDir = Join-Path $root "apps\desktop\src-tauri\bin\win64"
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 

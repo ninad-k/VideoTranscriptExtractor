@@ -8,7 +8,7 @@ $ErrorActionPreference = "Stop"
 # - pip install -e services/transcriber
 # - pip install pyinstaller
 
-$root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+$root = Split-Path -Parent $PSScriptRoot
 $svc = Join-Path $root "services\transcriber"
 $outDir = Join-Path $root "apps\desktop\src-tauri\bin\win64"
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
