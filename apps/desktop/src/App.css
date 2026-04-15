@@ -1,0 +1,292 @@
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+button {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  border-radius: 8px;
+  padding: 0.45rem 0.85rem;
+  cursor: pointer;
+}
+
+button.primary {
+  background: #2563eb;
+  color: #fff;
+  border-color: #1d4ed8;
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (prefers-color-scheme: dark) {
+  button {
+    background: #1e293b;
+    border-color: #334155;
+    color: #e2e8f0;
+  }
+  button.primary {
+    background: #3b82f6;
+    border-color: #2563eb;
+  }
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 1.25rem;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.panel {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem;
+  background: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  .panel {
+    background: #1e293b;
+    border-color: #334155;
+  }
+}
+
+.panel h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+}
+
+.job-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.job-item {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  cursor: pointer;
+}
+
+.job-item.active {
+  outline: 2px solid #2563eb;
+}
+
+.job-path {
+  font-size: 0.8rem;
+  word-break: break-all;
+}
+
+.job-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  opacity: 0.85;
+}
+
+.progress-bar {
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 0.35rem;
+}
+
+.progress-bar > div {
+  height: 100%;
+  background: #2563eb;
+  transition: width 0.2s ease;
+}
+
+.settings-grid {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.settings-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+}
+
+.settings-grid input,
+.settings-grid select {
+  padding: 0.4rem 0.5rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  .settings-grid input,
+  .settings-grid select {
+    background: #0f172a;
+    border-color: #475569;
+    color: #e2e8f0;
+  }
+  .job-item {
+    border-color: #334155;
+  }
+  .progress-bar {
+    background: #334155;
+  }
+}
+
+.segments {
+  max-height: 420px;
+  overflow: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .segments {
+    border-color: #334155;
+  }
+}
+
+.segment-row {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 0.5rem;
+  padding: 0.5rem 0.65rem;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.85rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .segment-row {
+    border-bottom-color: #334155;
+  }
+}
+
+.segment-time {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.8;
+}
+
+.segment-text textarea {
+  width: 100%;
+  min-height: 2.5rem;
+  resize: vertical;
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.1rem 0.35rem;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background: #e2e8f0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .badge {
+    background: #334155;
+  }
+}
+
+.badge.completed {
+  background: #bbf7d0;
+  color: #14532d;
+}
+
+.badge.failed {
+  background: #fecaca;
+  color: #7f1d1d;
+}
+
+.badge.running {
+  background: #dbeafe;
+  color: #1e3a8a;
+}
+
+.hint {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  margin-top: 0.5rem;
+}
+
+.error-box {
+  margin-top: 0.75rem;
+  padding: 0.65rem;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #991b1b;
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+}
+
+@media (prefers-color-scheme: dark) {
+  .error-box {
+    background: #450a0a;
+    color: #fecaca;
+  }
+}
+
+.export-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.search-row {
+  margin-bottom: 0.5rem;
+}
+
+.search-row input {
+  width: 100%;
+  padding: 0.45rem 0.55rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+}

@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "transcriber"
+version = "0.1.0"
+description = "Offline transcription worker for Video Transcript Extractor"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "faster-whisper>=1.0.3",
+]
+
+[project.scripts]
+transcriber = "transcriber.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
