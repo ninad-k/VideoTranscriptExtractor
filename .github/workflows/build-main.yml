@@ -67,7 +67,7 @@ jobs:
           key: ${{ runner.os }}-models-main-${{ hashFiles('scripts/fetch_models.py') }}-${{ hashFiles('scripts/requirements-bundling.txt') }}
 
       - name: Download models into bundle
-        run: python scripts/fetch_models.py
+        run: python scripts/fetch_models.py --require-all
 
       - name: Fetch FFmpeg (Windows)
         if: runner.os == 'Windows'

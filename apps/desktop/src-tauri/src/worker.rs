@@ -118,7 +118,9 @@ fn resolve_bundled_model_dir(app: &AppHandle, model_id: &str) -> Option<PathBuf>
 
 pub fn model_for_quality(quality: &str) -> &'static str {
     match quality {
-        "draft" => "distil-large-v3",
+        // `distil-large-v3` repo may be gated on some CI runners.
+        // `medium` is a stable public fallback for draft mode.
+        "draft" => "medium",
         _ => "large-v3",
     }
 }

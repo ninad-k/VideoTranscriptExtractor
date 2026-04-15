@@ -4,7 +4,7 @@
 
 | Quality | Whisper model        | Typical use                          |
 | ------- | -------------------- | ------------------------------------ |
-| Draft   | `distil-large-v3`    | Faster passes, weaker hardware      |
+| Draft   | `medium`             | Faster passes, weaker hardware      |
 | Final   | `large-v3`         | Best offline accuracy for delivery |
 
 Models are downloaded automatically by **faster-whisper** (CTranslate2) on first use.

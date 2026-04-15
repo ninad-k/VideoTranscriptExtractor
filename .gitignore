@@ -13,4 +13,4 @@ services/transcriber/dist/
 services/transcriber/*.spec
 # If you want to commit prebundled models, remove these ignores.
 apps/desktop/src-tauri/models/large-v3/
-apps/desktop/src-tauri/models/distil-large-v3/
+apps/desktop/src-tauri/models/medium/

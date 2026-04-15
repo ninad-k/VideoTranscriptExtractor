@@ -11,7 +11,7 @@ This project bundles two sidecars into the Tauri app resources:
 And optionally bundles model folders:
 
 - `models/large-v3/`
-- `models/distil-large-v3/`
+- `models/medium/`
 
 The app will use:
 
@@ -48,7 +48,7 @@ py -3 scripts/fetch_models.py
 This creates:
 
 - `apps/desktop/src-tauri/models/large-v3/`
-- `apps/desktop/src-tauri/models/distil-large-v3/`
+- `apps/desktop/src-tauri/models/medium/`
 
 At runtime, the app will pass `--model-path` pointing at these resource directories, so no network download is needed.
 
