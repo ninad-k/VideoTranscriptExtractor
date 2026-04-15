@@ -289,16 +289,63 @@ pub fn run() {
                 processor: ProcessorState::default(),
             });
 
-            let help_item = MenuItem::with_id(app, "help_user_guide", "User guide", true, None)
+            let file_add = MenuItem::with_id(app, "file_add_videos", "Add videos…", true, None)
+                .map_err(|e| e.to_string())?;
+            let file_start = MenuItem::with_id(app, "file_start_queue", "Start queue", true, None)
+                .map_err(|e| e.to_string())?;
+            let file_cancel = MenuItem::with_id(app, "file_cancel_queue", "Cancel", true, None)
+                .map_err(|e| e.to_string())?;
+            let file_quit = PredefinedMenuItem::quit(app).map_err(|e| e.to_string())?;
+
+            let file_menu = Menu::with_items(
+                app,
+                &[
+                    &file_add,
+                    &file_start,
+                    &file_cancel,
+                    &PredefinedMenuItem::separator(app).map_err(|e| e.to_string())?,
+                    &file_quit,
+                ],
+            )
+            .map_err(|e| e.to_string())?;
+
+            let view_toggle_help =
+                MenuItem::with_id(app, "view_toggle_help", "Toggle Help", true, None)
+                    .map_err(|e| e.to_string())?;
+            let view_menu = Menu::with_items(app, &[&view_toggle_help]).map_err(|e| e.to_string())?;
+
+            let edit_copy_transcript =
+                MenuItem::with_id(app, "edit_copy_transcript", "Copy transcript", true, None)
+                    .map_err(|e| e.to_string())?;
+            let edit_menu =
+                Menu::with_items(app, &[&edit_copy_transcript]).map_err(|e| e.to_string())?;
+
+            let export_srt = MenuItem::with_id(app, "export_srt", "Export SRT…", true, None)
+                .map_err(|e| e.to_string())?;
+            let export_vtt = MenuItem::with_id(app, "export_vtt", "Export WebVTT…", true, None)
+                .map_err(|e| e.to_string())?;
+            let export_txt = MenuItem::with_id(app, "export_txt", "Export TXT…", true, None)
+                .map_err(|e| e.to_string())?;
+            let export_menu = Menu::with_items(app, &[&export_srt, &export_vtt, &export_txt])
                 .map_err(|e| e.to_string())?;
 
+            let help_item =
+                MenuItem::with_id(app, "help_user_guide", "Help", true, None).map_err(|e| e.to_string())?;
             let help_menu = Menu::with_items(app, &[&help_item]).map_err(|e| e.to_string())?;
+
             let menu = Menu::with_items(
                 app,
                 &[
+                    &Submenu::with_items(app, "File", true, &file_menu)
+                        .map_err(|e| e.to_string())?,
+                    &Submenu::with_items(app, "Edit", true, &edit_menu)
+                        .map_err(|e| e.to_string())?,
+                    &Submenu::with_items(app, "View", true, &view_menu)
+                        .map_err(|e| e.to_string())?,
+                    &Submenu::with_items(app, "Export", true, &export_menu)
+                        .map_err(|e| e.to_string())?,
                     &Submenu::with_items(app, "Help", true, &help_menu)
                         .map_err(|e| e.to_string())?,
-                    &PredefinedMenuItem::separator(app).map_err(|e| e.to_string())?,
                 ],
             )
             .map_err(|e| e.to_string())?;
@@ -307,9 +354,36 @@ pub fn run() {
 
             let handle = app.handle().clone();
             app.on_menu_event(move |_app, event| {
-                if event.id().as_ref() == "help_user_guide" {
-                    let _ = handle.emit("app://show_help", json!({}));
-                }
+                match event.id().as_ref() {
+                    "help_user_guide" => {
+                        let _ = handle.emit("app://show_help", json!({}));
+                    }
+                    "file_add_videos" => {
+                        let _ = handle.emit("app://add_videos", json!({}));
+                    }
+                    "file_start_queue" => {
+                        let _ = handle.emit("app://start_queue", json!({}));
+                    }
+                    "file_cancel_queue" => {
+                        let _ = handle.emit("app://cancel_queue", json!({}));
+                    }
+                    "view_toggle_help" => {
+                        let _ = handle.emit("app://toggle_help", json!({}));
+                    }
+                    "edit_copy_transcript" => {
+                        let _ = handle.emit("app://copy_transcript", json!({}));
+                    }
+                    "export_srt" => {
+                        let _ = handle.emit("app://export_srt", json!({}));
+                    }
+                    "export_vtt" => {
+                        let _ = handle.emit("app://export_vtt", json!({}));
+                    }
+                    "export_txt" => {
+                        let _ = handle.emit("app://export_txt", json!({}));
+                    }
+                    _ => {}
+                };
             });
 
             Ok(())

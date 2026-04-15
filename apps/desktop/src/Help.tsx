@@ -10,7 +10,7 @@ export default function Help() {
           Click <b>Add videos</b> and select one or more files.
         </li>
         <li>
-          Pick <b>Quality</b>:
+          Set <b>Quality</b> in <b>Settings</b>:
           <ul>
             <li>
               <b>Draft</b>: faster, smaller model (good for quick review)
@@ -19,9 +19,6 @@ export default function Help() {
               <b>Final</b>: best accuracy, slower (recommended for delivery)
             </li>
           </ul>
-        </li>
-        <li>
-          Pick <b>Language</b> hint (or keep <b>Auto</b> for Hinglish).
         </li>
         <li>
           Click <b>Start queue</b>. You can <b>Cancel</b> anytime.
@@ -42,8 +39,9 @@ export default function Help() {
           <b>Settings</b>.
         </li>
         <li>
-          Model downloads can be large; set a <b>Model cache directory</b> if you
-          want them stored on a specific drive.
+          If models were not prebundled, the first run may download model files.
+          You can set a <b>Model cache directory</b> to store them on a specific
+          drive.
         </li>
       </ul>
 
@@ -54,6 +52,10 @@ export default function Help() {
           review area.
         </li>
       </ul>
+
+      <div className="hint" style={{ marginTop: "1rem" }}>
+        Developed By: <b>Ninad K.</b>
+      </div>
     </div>
   );
 }

@@ -13,6 +13,57 @@ import type {
 import "./App.css";
 import Help from "./Help";
 
+function AppIcon() {
+  return (
+    <svg
+      width="36"
+      height="36"
+      viewBox="0 0 48 48"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient id="vteG" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#2563eb" />
+          <stop offset="1" stopColor="#60a5fa" />
+        </linearGradient>
+      </defs>
+      <rect x="4" y="4" width="40" height="40" rx="12" fill="url(#vteG)" />
+      <path
+        d="M15 17h18v4H15v-4zm0 7h12v4H15v-4zm0 7h18v4H15v-4z"
+        fill="rgba(255,255,255,0.92)"
+      />
+    </svg>
+  );
+}
+
+function IconPlay() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="currentColor" d="M8 5v14l11-7z" />
+    </svg>
+  );
+}
+
+function IconStop() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="currentColor" d="M7 7h10v10H7z" />
+    </svg>
+  );
+}
+
+function IconPlus() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M11 5h2v14h-2zM5 11h14v2H5z"
+      />
+    </svg>
+  );
+}
+
 function formatTimestamp(seconds: number): string {
   const s = Math.max(0, seconds);
   const h = Math.floor(s / 3600);
@@ -47,6 +98,33 @@ export default function App() {
     () => jobs.find((j) => j.id === selectedId) ?? null,
     [jobs, selectedId],
   );
+
+  const hasQueued = useMemo(
+    () => jobs.some((j) => j.status === "queued"),
+    [jobs],
+  );
+
+  const hasActive = useMemo(
+    () =>
+      jobs.some((j) => j.status === "extracting" || j.status === "transcribing"),
+    [jobs],
+  );
+
+  const totalProgress = useMemo(() => {
+    const relevant = jobs.filter(
+      (j) =>
+        j.status === "queued" ||
+        j.status === "extracting" ||
+        j.status === "transcribing" ||
+        j.status === "completed",
+    );
+    if (relevant.length === 0) return null;
+    const sum = relevant.reduce(
+      (acc, j) => acc + (j.status === "completed" ? 100 : j.progress ?? 0),
+      0,
+    );
+    return Math.max(0, Math.min(100, sum / relevant.length));
+  }, [jobs]);
 
   const segments: TranscriptSegment[] = useMemo(() => {
     if (!selected?.segments_json) return [];
@@ -89,6 +167,9 @@ export default function App() {
     let unlisten: (() => void) | undefined;
     void listen<ProgressPayload>("transcription://progress", (event) => {
       const p = event.payload;
+      if (p.status === "extracting" || p.status === "transcribing") {
+        setProcessing(true);
+      }
       setJobs((prev) =>
         prev.map((j) =>
           j.id === p.job_id
@@ -149,6 +230,52 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    let unlistenAdd: (() => void) | undefined;
+    let unlistenStart: (() => void) | undefined;
+    let unlistenCancel: (() => void) | undefined;
+    let unlistenToggleHelp: (() => void) | undefined;
+    let unlistenCopy: (() => void) | undefined;
+    let unlistenExportSrt: (() => void) | undefined;
+    let unlistenExportVtt: (() => void) | undefined;
+    let unlistenExportTxt: (() => void) | undefined;
+    void listen("app://add_videos", () => void onPickVideos()).then((fn) => {
+      unlistenAdd = fn;
+    });
+    void listen("app://start_queue", () => void onStartQueue()).then((fn) => {
+      unlistenStart = fn;
+    });
+    void listen("app://cancel_queue", () => void onCancel()).then((fn) => {
+      unlistenCancel = fn;
+    });
+    void listen("app://toggle_help", () => setShowHelp((v) => !v)).then((fn) => {
+      unlistenToggleHelp = fn;
+    });
+    void listen("app://copy_transcript", () => void copyTranscriptToClipboard()).then((fn) => {
+      unlistenCopy = fn;
+    });
+    void listen("app://export_srt", () => void exportJob("srt")).then((fn) => {
+      unlistenExportSrt = fn;
+    });
+    void listen("app://export_vtt", () => void exportJob("vtt")).then((fn) => {
+      unlistenExportVtt = fn;
+    });
+    void listen("app://export_txt", () => void exportJob("txt")).then((fn) => {
+      unlistenExportTxt = fn;
+    });
+    return () => {
+      unlistenAdd?.();
+      unlistenStart?.();
+      unlistenCancel?.();
+      unlistenToggleHelp?.();
+      unlistenCopy?.();
+      unlistenExportSrt?.();
+      unlistenExportVtt?.();
+      unlistenExportTxt?.();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const onPickVideos = async () => {
     const paths = await open({
       multiple: true,
@@ -180,6 +307,7 @@ export default function App() {
   };
 
   const onStartQueue = async () => {
+    if (!hasQueued) return;
     setProcessing(true);
     try {
       const started = await invoke<boolean>("start_queue");
@@ -233,6 +361,27 @@ export default function App() {
     });
   };
 
+  const copyTranscriptToClipboard = async () => {
+    if (!selected || selected.status !== "completed" || segments.length === 0) return;
+    const text = segments
+      .map((s) => s.text.trim())
+      .filter(Boolean)
+      .join("\n\n");
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const el = document.createElement("textarea");
+      el.value = text;
+      el.style.position = "fixed";
+      el.style.left = "-9999px";
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand("copy");
+      document.body.removeChild(el);
+    }
+  };
+
   const badgeClass = (status: Job["status"]) => {
     if (status === "completed") return "badge completed";
     if (status === "failed" || status === "cancelled") return "badge failed";
@@ -247,53 +396,57 @@ export default function App() {
 
   return (
     <div className="app">
-      <header>
-        <div>
-          <h1>Video Transcript Extractor</h1>
-          <p className="subtitle">
-            Offline Hindi / English / Hinglish transcripts (Whisper on-device)
-          </p>
+      <header className="app-header">
+        <div className="brand">
+          <AppIcon />
+          <div>
+            <h1>Video Transcript Extractor</h1>
+            <p className="subtitle">Offline transcription • Local processing</p>
+          </div>
+        </div>
+        <div className="chip">
+          Developed By: <b>Ninad K.</b>
         </div>
       </header>
 
       <div className="toolbar">
-        <button type="button" className="primary" onClick={() => void onPickVideos()}>
-          Add videos
-        </button>
-        <button
-          type="button"
-          onClick={() => void onStartQueue()}
-          disabled={processing || jobs.length === 0}
-        >
-          {processing ? "Processing…" : "Start queue"}
-        </button>
-        <button type="button" onClick={() => void onCancel()}>
-          Cancel
-        </button>
-        <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          Quality
-          <select
-            value={quality}
-            onChange={(e) => setQuality(e.target.value as QualityPreset)}
+        <div className="toolbar-left">
+          <button type="button" className="btn" onClick={() => void onPickVideos()}>
+            <IconPlus /> Add videos
+          </button>
+          <button
+            type="button"
+            className="btn primary"
+            onClick={() => void onStartQueue()}
+            disabled={!hasQueued || processing || hasActive}
+            title={!hasQueued ? "Add videos to enable" : undefined}
           >
-            <option value="draft">Draft (faster)</option>
-            <option value="final">Final (best)</option>
-          </select>
-        </label>
-        <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          Language
-          <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value as LanguageHint)}
+            <IconPlay /> {processing || hasActive ? "Running" : "Start queue"}
+          </button>
+          <button
+            type="button"
+            className="btn danger"
+            onClick={() => void onCancel()}
+            disabled={!(processing || hasActive)}
           >
-            <option value="auto">Auto</option>
-            <option value="hi">Hindi hint</option>
-            <option value="en">English hint</option>
-          </select>
-        </label>
-        <button type="button" onClick={() => setShowHelp((v) => !v)}>
-          Help
-        </button>
+            <IconStop /> Cancel
+          </button>
+        </div>
+        <div className="toolbar-right">
+          {totalProgress != null && (
+            <span className="chip">
+              Total: {Math.round(totalProgress)}%
+              <span style={{ width: 140, display: "inline-block" }}>
+                <span className="progress-bar" style={{ marginTop: 0 }}>
+                  <div style={{ width: `${Math.min(100, totalProgress)}%` }} />
+                </span>
+              </span>
+            </span>
+          )}
+          <button type="button" className="btn" onClick={() => setShowHelp((v) => !v)}>
+            Help
+          </button>
+        </div>
       </div>
 
       {showHelp && <Help />}
@@ -404,13 +557,33 @@ export default function App() {
                   <option value="en">English</option>
                 </select>
               </label>
-              <button type="button" className="primary" onClick={() => void onSaveSettings()}>
+              <label>
+                Next jobs (temporary override)
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                  <select
+                    value={quality}
+                    onChange={(e) => setQuality(e.target.value as QualityPreset)}
+                    aria-label="Next jobs quality"
+                  >
+                    <option value="draft">Draft</option>
+                    <option value="final">Final</option>
+                  </select>
+                  <select
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value as LanguageHint)}
+                    aria-label="Next jobs language"
+                  >
+                    <option value="auto">Auto</option>
+                    <option value="hi">Hindi</option>
+                    <option value="en">English</option>
+                  </select>
+                </div>
+              </label>
+              <button type="button" className="btn primary" onClick={() => void onSaveSettings()}>
                 Save settings
               </button>
               <p className="hint">
-                Install Python deps in <code>services/transcriber</code>, ensure{" "}
-                <code>ffmpeg</code> is available, and use a GPU for best speed on
-                large models.
+                Quality/Language defaults apply to new jobs. Use the File menu for common actions.
               </p>
             </div>
           )}
@@ -429,13 +602,13 @@ export default function App() {
             />
           </div>
           <div className="export-row">
-            <button type="button" onClick={() => void exportJob("srt")}>
+            <button type="button" className="btn" onClick={() => void exportJob("srt")}>
               Export SRT
             </button>
-            <button type="button" onClick={() => void exportJob("vtt")}>
+            <button type="button" className="btn" onClick={() => void exportJob("vtt")}>
               Export WebVTT
             </button>
-            <button type="button" onClick={() => void exportJob("txt")}>
+            <button type="button" className="btn" onClick={() => void exportJob("txt")}>
               Export TXT
             </button>
           </div>
@@ -458,6 +631,10 @@ export default function App() {
           </div>
         </div>
       )}
+
+      <div className="footer">
+        Developed By: <b>Ninad K.</b>
+      </div>
     </div>
   );
 }

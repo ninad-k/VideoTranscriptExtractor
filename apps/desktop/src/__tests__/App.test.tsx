@@ -103,6 +103,15 @@ describe("App", () => {
     render(<App />);
 
     const user = userEvent.setup();
+    // Start is disabled when no queued jobs exist.
+    // Make the job queued so the Start button enables.
+    invokeMock.mockImplementation(async (cmd: string) => {
+      if (cmd === "get_settings") return settings();
+      if (cmd === "list_jobs") return [job({ status: "queued" })];
+      if (cmd === "start_queue") return true;
+      throw new Error(`unexpected invoke: ${cmd}`);
+    });
+
     const btn = await screen.findByRole("button", { name: /start queue/i });
     await user.click(btn);
 
