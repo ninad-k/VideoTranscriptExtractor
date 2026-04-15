@@ -87,7 +87,8 @@ describe("App", () => {
       audio_duration_sec: 120,
     });
 
-    expect(await screen.findByText(/transcribing/i)).toBeInTheDocument();
+    // Status badge and progress message both match /transcribing/i; assert the message line.
+    expect(await screen.findByText("Transcribing…")).toBeInTheDocument();
     expect(await screen.findByText(/RTF/i)).toBeInTheDocument();
     expect(await screen.findByText(/ETA/i)).toBeInTheDocument();
   });
