@@ -8,7 +8,7 @@ use settings::AppSettings;
 use serde_json::json;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
-use tauri::{AppHandle, Emitter, State};
+use tauri::{AppHandle, Emitter, Manager, State};
 use worker::ProcessorState;
 use tauri::menu::{Menu, MenuItem, PredefinedMenuItem, Submenu};
 
@@ -146,11 +146,12 @@ async fn start_queue(app: AppHandle, state: State<'_, AppState>) -> Result<bool,
             let job_id = job.id.clone();
             {
                 let db = db.clone();
-                let res = tokio::task::spawn_blocking(move || {
+                let job_id_update = job_id.clone();
+                let _ = tokio::task::spawn_blocking(move || -> Result<(), String> {
                     let conn = db.lock().map_err(|e| e.to_string())?;
                     db::update_job_fields(
                         &conn,
-                        &job_id,
+                        &job_id_update,
                         "transcribing",
                         2.0,
                         Some("Starting…"),
@@ -161,9 +162,9 @@ async fn start_queue(app: AppHandle, state: State<'_, AppState>) -> Result<bool,
                         None,
                         None,
                     )
+                    .map_err(|e| e.to_string())
                 })
                 .await;
-                let _ = res;
             }
             let _ = app.emit("transcription://job_updated", &job_id);
 
@@ -177,7 +178,7 @@ async fn start_queue(app: AppHandle, state: State<'_, AppState>) -> Result<bool,
                     let model = result.model_used.clone();
                     let rtf = result.rtf;
                     let dur = result.audio_duration_sec;
-                    let _ = tokio::task::spawn_blocking(move || {
+                    let _ = tokio::task::spawn_blocking(move || -> Result<(), String> {
                         let conn = db2.lock().map_err(|e| e.to_string())?;
                         db::update_job_fields(
                             &conn,
@@ -200,7 +201,7 @@ async fn start_queue(app: AppHandle, state: State<'_, AppState>) -> Result<bool,
                     if err == "cancelled" {
                         let db2 = db.clone();
                         let job_id2 = job_id.clone();
-                        let _ = tokio::task::spawn_blocking(move || {
+                        let _ = tokio::task::spawn_blocking(move || -> Result<(), String> {
                             let conn = db2.lock().map_err(|e| e.to_string())?;
                             db::update_job_fields(
                                 &conn,
@@ -222,7 +223,7 @@ async fn start_queue(app: AppHandle, state: State<'_, AppState>) -> Result<bool,
                         let db2 = db.clone();
                         let job_id2 = job_id.clone();
                         let err2 = err.clone();
-                        let _ = tokio::task::spawn_blocking(move || {
+                        let _ = tokio::task::spawn_blocking(move || -> Result<(), String> {
                             let conn = db2.lock().map_err(|e| e.to_string())?;
                             db::update_job_fields(
                                 &conn,
@@ -295,30 +296,16 @@ pub fn run() {
                 .map_err(|e| e.to_string())?;
             let file_cancel = MenuItem::with_id(app, "file_cancel_queue", "Cancel", true, None)
                 .map_err(|e| e.to_string())?;
-            let file_quit = PredefinedMenuItem::quit(app).map_err(|e| e.to_string())?;
-
-            let file_menu = Menu::with_items(
-                app,
-                &[
-                    &file_add,
-                    &file_start,
-                    &file_cancel,
-                    &PredefinedMenuItem::separator(app).map_err(|e| e.to_string())?,
-                    &file_quit,
-                ],
-            )
-            .map_err(|e| e.to_string())?;
+            let file_quit = PredefinedMenuItem::quit(app, None).map_err(|e| e.to_string())?;
+            let file_sep = PredefinedMenuItem::separator(app).map_err(|e| e.to_string())?;
 
             let view_toggle_help =
                 MenuItem::with_id(app, "view_toggle_help", "Toggle Help", true, None)
                     .map_err(|e| e.to_string())?;
-            let view_menu = Menu::with_items(app, &[&view_toggle_help]).map_err(|e| e.to_string())?;
 
             let edit_copy_transcript =
                 MenuItem::with_id(app, "edit_copy_transcript", "Copy transcript", true, None)
                     .map_err(|e| e.to_string())?;
-            let edit_menu =
-                Menu::with_items(app, &[&edit_copy_transcript]).map_err(|e| e.to_string())?;
 
             let export_srt = MenuItem::with_id(app, "export_srt", "Export SRT…", true, None)
                 .map_err(|e| e.to_string())?;
@@ -326,26 +313,47 @@ pub fn run() {
                 .map_err(|e| e.to_string())?;
             let export_txt = MenuItem::with_id(app, "export_txt", "Export TXT…", true, None)
                 .map_err(|e| e.to_string())?;
-            let export_menu = Menu::with_items(app, &[&export_srt, &export_vtt, &export_txt])
-                .map_err(|e| e.to_string())?;
 
             let help_item =
                 MenuItem::with_id(app, "help_user_guide", "Help", true, None).map_err(|e| e.to_string())?;
-            let help_menu = Menu::with_items(app, &[&help_item]).map_err(|e| e.to_string())?;
+
+            let file_submenu = Submenu::with_items(
+                app,
+                "File",
+                true,
+                &[
+                    &file_add,
+                    &file_start,
+                    &file_cancel,
+                    &file_sep,
+                    &file_quit,
+                ],
+            )
+            .map_err(|e| e.to_string())?;
+            let edit_submenu =
+                Submenu::with_items(app, "Edit", true, &[&edit_copy_transcript])
+                    .map_err(|e| e.to_string())?;
+            let view_submenu =
+                Submenu::with_items(app, "View", true, &[&view_toggle_help])
+                    .map_err(|e| e.to_string())?;
+            let export_submenu = Submenu::with_items(
+                app,
+                "Export",
+                true,
+                &[&export_srt, &export_vtt, &export_txt],
+            )
+            .map_err(|e| e.to_string())?;
+            let help_submenu =
+                Submenu::with_items(app, "Help", true, &[&help_item]).map_err(|e| e.to_string())?;
 
             let menu = Menu::with_items(
                 app,
                 &[
-                    &Submenu::with_items(app, "File", true, &file_menu)
-                        .map_err(|e| e.to_string())?,
-                    &Submenu::with_items(app, "Edit", true, &edit_menu)
-                        .map_err(|e| e.to_string())?,
-                    &Submenu::with_items(app, "View", true, &view_menu)
-                        .map_err(|e| e.to_string())?,
-                    &Submenu::with_items(app, "Export", true, &export_menu)
-                        .map_err(|e| e.to_string())?,
-                    &Submenu::with_items(app, "Help", true, &help_menu)
-                        .map_err(|e| e.to_string())?,
+                    &file_submenu,
+                    &edit_submenu,
+                    &view_submenu,
+                    &export_submenu,
+                    &help_submenu,
                 ],
             )
             .map_err(|e| e.to_string())?;

@@ -9,7 +9,7 @@ use std::sync::Arc;
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::{Child, Command};
 use tokio::sync::Mutex;
-use tauri::{AppHandle, Emitter};
+use tauri::{AppHandle, Emitter, Manager};
 use tauri::path::BaseDirectory;
 
 #[derive(Clone)]
@@ -358,7 +358,7 @@ pub async fn run_job(
     let segments = payload
         .get("segments")
         .cloned()
-        .ok_or_else(|| "result.json missing segments".into())?;
+        .ok_or_else(|| String::from("result.json missing segments"))?;
     let segments_json = serde_json::to_string(&segments).map_err(|e| e.to_string())?;
     let model_used = payload
         .get("model")
