@@ -89,7 +89,7 @@ def make_dataflow_diagram(path: Path) -> Path:
         d.text((x + 18, y + 14), title, fill="#0f172a", font=box_f)
         d.multiline_text((x + 18, y + 64), body, fill="#334155", font=small_f, spacing=6)
 
-    box(80, 160, 380, 180, "UI", "Select files\nSet Quality/Language\nStart queue", fill="#dbeafe")
+    box(80, 160, 380, 180, "UI", "Select files\nStart queue\nMenu: Export/Copy", fill="#dbeafe")
     box(520, 160, 420, 180, "FFmpeg", "Decode media\nExtract mono 16 kHz WAV", fill="#fee2e2")
     box(1000, 160, 520, 180, "ASR (faster-whisper)", "VAD + decode\nSegments with timestamps", fill="#dcfce7")
     box(520, 420, 420, 180, "SQLite", "Store jobs\nProgress, errors\nSegments JSON", fill="#fef9c3")
@@ -124,30 +124,46 @@ def make_ui_mock_screenshot(path: Path) -> Path:
 
     d.rounded_rectangle([40, 40, w - 40, h - 40], radius=20, outline="#cbd5e1", width=4, fill="white")
     d.text((70, 70), "Video Transcript Extractor (illustrative)", fill="#0f172a", font=title_f)
-    d.text((70, 115), "Offline Hindi / English / Hinglish transcripts", fill="#334155", font=body_f)
+    d.text((70, 115), "Offline transcription • Local processing", fill="#334155", font=body_f)
+
+    # Header chip
+    d.rounded_rectangle([1180, 70, w - 70, 118], radius=22, outline="#e2e8f0", width=2, fill="#f1f5f9")
+    d.text((1200, 83), "Developed By: Ninad K.", fill="#0f172a", font=body_f)
 
     # Toolbar
     d.rounded_rectangle([70, 160, w - 70, 220], radius=14, outline="#e2e8f0", width=2, fill="#f1f5f9")
-    d.text((90, 176), "Add videos   Start queue   Cancel   Quality: Final   Language: Auto   Help", fill="#0f172a", font=body_f)
+    d.text((90, 176), "Add videos   Start queue   Cancel", fill="#0f172a", font=body_f)
+    d.rounded_rectangle([1050, 168, 1340, 212], radius=999, outline="#e2e8f0", width=2, fill="#ffffff")
+    d.text((1070, 178), "Total: 42%  ▓▓▓▓▓░░░░░", fill="#0f172a", font=body_f)
+    d.text((1400, 176), "Help", fill="#0f172a", font=body_f)
+
+    # Menu hint row
+    d.text((70, 230), "Menu: File | Edit | View | Export | Help", fill="#64748b", font=body_f)
 
     # Left queue panel
-    d.rounded_rectangle([70, 250, 1020, h - 70], radius=16, outline="#e2e8f0", width=2, fill="white")
-    d.text((95, 275), "Queue", fill="#0f172a", font=title_f)
+    d.rounded_rectangle([70, 270, 1020, h - 70], radius=16, outline="#e2e8f0", width=2, fill="white")
+    d.text((95, 295), "Queue", fill="#0f172a", font=title_f)
     for i in range(5):
-        y = 335 + i * 105
+        y = 355 + i * 105
         d.rounded_rectangle([95, y, 995, y + 85], radius=14, outline="#e2e8f0", width=2, fill="#ffffff")
         d.text((120, y + 14), f"D:\\\\videos\\\\sample_{i+1}.mp4", fill="#0f172a", font=body_f)
-        d.text((120, y + 48), "status: queued    progress: 0%", fill="#475569", font=body_f)
+        d.text((120, y + 48), "status: queued    progress: 0%   ░░░░░░░░░░", fill="#475569", font=body_f)
 
     # Settings panel
-    d.rounded_rectangle([1050, 250, w - 70, 600], radius=16, outline="#e2e8f0", width=2, fill="white")
-    d.text((1075, 275), "Settings", fill="#0f172a", font=title_f)
-    d.text((1075, 340), "FFmpeg path (optional)", fill="#0f172a", font=body_f)
-    d.rounded_rectangle([1075, 380, w - 95, 420], radius=10, outline="#cbd5e1", width=2, fill="#ffffff")
-    d.text((1088, 390), "ffmpeg on PATH if empty", fill="#94a3b8", font=body_f)
-    d.text((1075, 450), "Model cache directory", fill="#0f172a", font=body_f)
-    d.rounded_rectangle([1075, 490, w - 95, 530], radius=10, outline="#cbd5e1", width=2, fill="#ffffff")
-    d.text((1088, 500), "System default if empty", fill="#94a3b8", font=body_f)
+    d.rounded_rectangle([1050, 270, w - 70, 720], radius=16, outline="#e2e8f0", width=2, fill="white")
+    d.text((1075, 295), "Settings", fill="#0f172a", font=title_f)
+    d.text((1075, 360), "FFmpeg path (optional)", fill="#0f172a", font=body_f)
+    d.rounded_rectangle([1075, 400, w - 95, 440], radius=10, outline="#cbd5e1", width=2, fill="#ffffff")
+    d.text((1088, 410), "ffmpeg on PATH if empty", fill="#94a3b8", font=body_f)
+    d.text((1075, 470), "Model cache directory", fill="#0f172a", font=body_f)
+    d.rounded_rectangle([1075, 510, w - 95, 550], radius=10, outline="#cbd5e1", width=2, fill="#ffffff")
+    d.text((1088, 520), "System default if empty", fill="#94a3b8", font=body_f)
+    d.text((1075, 580), "Default quality", fill="#0f172a", font=body_f)
+    d.rounded_rectangle([1075, 620, 1290, 660], radius=10, outline="#cbd5e1", width=2, fill="#ffffff")
+    d.text((1090, 630), "Final", fill="#0f172a", font=body_f)
+    d.text((1320, 580), "Default language", fill="#0f172a", font=body_f)
+    d.rounded_rectangle([1320, 620, w - 95, 660], radius=10, outline="#cbd5e1", width=2, fill="#ffffff")
+    d.text((1335, 630), "Auto", fill="#0f172a", font=body_f)
 
     return _save_png(path, img)
 
@@ -170,9 +186,8 @@ def doc_user_guide(out_path: Path, screenshot_path: Path) -> None:
     doc.add_paragraph("Install Node.js + npm to run the desktop UI during development.")
 
     doc.add_heading("2. Add videos and start the queue", level=1)
-    doc.add_paragraph("Click “Add videos”, choose one or more files, then click “Start queue”.")
-    doc.add_paragraph("Use Quality: Draft for speed, Final for best accuracy.")
-    doc.add_paragraph("Language hint: Auto is recommended for Hinglish; use Hindi/English hints for edge cases.")
+    doc.add_paragraph("Use File → Add videos… or click “Add videos”, choose one or more files, then click “Start queue”.")
+    doc.add_paragraph("Quality and language defaults are configured under Settings.")
 
     doc.add_paragraph("Illustrative UI screenshot:").runs[0].bold = True
     doc.add_picture(str(screenshot_path), width=Inches(6.7))
@@ -209,7 +224,7 @@ def doc_architecture(out_path: Path, stack_png: Path, flow_png: Path) -> None:
     doc.add_picture(str(flow_png), width=Inches(6.8))
 
     doc.add_heading("Notes", level=1)
-    doc.add_paragraph("Draft uses distil-large-v3; Final uses large-v3.")
+    doc.add_paragraph("Draft uses medium; Final uses large-v3.")
     doc.add_paragraph("All processing is performed on-device; no audio is uploaded.")
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
